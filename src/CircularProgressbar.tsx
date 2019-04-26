@@ -106,17 +106,18 @@ class CircularProgressbar extends React.Component<
 
   getBackgroundPadding() {
     if (this.props.background) {
-      // default padding to be the same as strokeWidth
-      // compare to null because 0 is falsy
+      // Default padding to be the same as strokeWidth
+      // Compare to null because 0 is falsy
       if (this.props.backgroundPadding == null) {
         return this.props.strokeWidth;
       }
       return this.props.backgroundPadding;
     }
-    // don't add padding if not displaying background
+    // Don't add padding if not displaying background
     return 0;
   }
 
+  // SVG path description, or `d`, specifies how the path should be drawn
   getPathDescription() {
     const radius = this.getPathRadius();
     const rotation = this.props.counterClockwise ? 1 : 0;
@@ -135,20 +136,24 @@ class CircularProgressbar extends React.Component<
 
   getPathStyles() {
     const diameter = Math.PI * 2 * this.getPathRadius();
+
+    // Keep percentage within range (MIN_PERCENTAGE, MAX_PERCENTAGE)
     const truncatedPercentage = Math.min(
       Math.max(this.state.percentage, MIN_PERCENTAGE),
       MAX_PERCENTAGE,
     );
-    const dashoffset = ((100 - truncatedPercentage) / 100) * diameter;
+    const pathLength = (1 - truncatedPercentage / 100) * diameter;
 
     return {
+      // Have dash be full diameter, and gap be full diameter
       strokeDasharray: `${diameter}px ${diameter}px`,
-      strokeDashoffset: `${this.props.counterClockwise ? -dashoffset : dashoffset}px`,
+      // Have gap start appearing after `pathLength` distance
+      strokeDashoffset: `${this.props.counterClockwise ? -pathLength : pathLength}px`,
     };
   }
 
   getPathRadius() {
-    // the radius of the path is defined to be in the middle, so in order for the path to
+    // The radius of the path is defined to be in the middle, so in order for the path to
     // fit perfectly inside the 100x100 viewBox, need to subtract half the strokeWidth
     return FULL_RADIUS - this.props.strokeWidth / 2 - this.getBackgroundPadding();
   }
